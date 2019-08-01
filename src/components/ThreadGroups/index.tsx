@@ -16,11 +16,12 @@ import {
   DeleteThread,
   DeleteThreadVariables
 } from "queries/types/DeleteThread";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 const { Content, Sider } = Layout;
 const { SubMenu } = Menu;
 
-class GetThreadGroupsQuery extends Query<LoadThreadGroups> {}
+export class GetThreadGroupsQuery extends Query<LoadThreadGroups> {}
 
 class ThreadGroups extends React.Component<
   {},
@@ -74,28 +75,15 @@ class ThreadGroups extends React.Component<
                   {data!!.threadGroups.map(e => (
                     <Menu.Item
                       key={e.id}
-                      onClick={() => this.setState({ selectedGroupId: e.id })}
                     >
                       {e.name}
+                      <Link to={"/groups/" + e.id} />
                     </Menu.Item>
                   ))}
                 </Menu>
               </Sider>
-              <Layout style={{ padding: "0 24px 24px" }}>
-                <Breadcrumb style={{ margin: "24px 0" }}>
-                  <Breadcrumb.Item>Thread Groups</Breadcrumb.Item>
-                  {this.state.selectedGroup !== undefined ? (
-                    <Breadcrumb.Item>
-                      {this.state.selectedGroup!!.name}
-                    </Breadcrumb.Item>
-                  ) : (
-                    <div />
-                  )}
-                </Breadcrumb>
-                <Content style={{ minHeight: 280 }}>
-                  <ThreadGroup selectedGroup={data!!.threadGroups.find((group) => group.id === this.state.selectedGroupId)} />
-                </Content>
-              </Layout>
+              <Route path="/groups/:id" component={ThreadGroup} />
+
             </Layout>
           );
         }}

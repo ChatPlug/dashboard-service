@@ -7,14 +7,14 @@ import { Layout, Menu, Breadcrumb, Icon } from "antd";
 import Services from "./Services";
 import ThreadGroups from "./ThreadGroups";
 import Settings from "./Settings";
-
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
 class App extends React.Component {
   state = {
     collapsed: false,
-    selectedIndex: 0,
+    selectedIndex: 0
   };
 
   onCollapse = (collapsed: boolean) => {
@@ -24,55 +24,45 @@ class App extends React.Component {
 
   render() {
     return (
-      <Layout style={{ height: "100vh" }}>
-        <Header  className="header" style={{marginLeft: 0, backgroundColor: "#fff", display: "flex", flex:"row"}}>
-          <div className="logo">
-            ChatPlug Dashboard v1
-          </div>
-          <Menu
-            theme="light"
-            mode="horizontal"
-            defaultSelectedKeys={[this.state.selectedIndex.toString()]}
-            style={{ lineHeight: "64px",    marginLeft: 'auto'
-          }}
+      <Router>
+        <Layout style={{ height: "100vh" }}>
+          <Header
+            className="header"
+            style={{
+              marginLeft: 0,
+              backgroundColor: "#fff",
+              display: "flex",
+              flex: "row"
+            }}
           >
-                        <Menu.Item
-            style={{float: 'right'}}
-              key="2"
-              onClick={_ => this.setState({ selectedIndex: 2 })}
+            <div className="logo">ChatPlug Dashboard v1</div>
+            <Menu
+              theme="light"
+              mode="horizontal"
+              defaultSelectedKeys={[this.state.selectedIndex.toString()]}
+              style={{ lineHeight: "64px", marginLeft: "auto" }}
             >
-              Settings
-            </Menu.Item>
+              <Menu.Item key="2">
+                Settings
+                <Link to="/settings" />
+              </Menu.Item>
 
-            <Menu.Item
-            style={{float: 'right'}}
-              key="1"
-              onClick={_ => this.setState({ selectedIndex: 1 })}
-            >
-              Thread groups
-            </Menu.Item>
-            <Menu.Item
-              style={{float: 'right'}}
-              key="0"
-              onClick={_ => this.setState({ selectedIndex: 0 })}
-            >
-              Services
-            </Menu.Item>
-          </Menu>
-        </Header>
-        {this.drawContent()}
-      </Layout>
+              <Menu.Item key="1">
+                Thread groups
+                <Link to="/groups" />
+              </Menu.Item>
+              <Menu.Item key="0">
+                Services
+                <Link to="/services" />
+              </Menu.Item>
+            </Menu>
+          </Header>
+          <Route path="/groups" component={ThreadGroups} />
+          <Route path="/services" component={Services} />
+          <Route path="/settings" component={Settings} />
+        </Layout>
+      </Router>
     );
-  }
-
-  drawContent() {
-    if (this.state.selectedIndex === 0) {
-      return <Services />;
-    } else if (this.state.selectedIndex === 1) {
-      return <ThreadGroups />;
-    } else {
-      return <Settings />;
-    }
   }
 }
 

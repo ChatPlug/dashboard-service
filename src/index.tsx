@@ -6,7 +6,7 @@ import { HttpLink } from "apollo-link-http"
 import { InMemoryCache } from "apollo-cache-inmemory"
 import { ApolloProvider } from 'react-apollo'
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
     // By default, this client will send queries to the
     //  `/graphql` endpoint on the same host
     // Pass the configuration option { uri: YOUR_GRAPHQL_API_URL } to the `HttpLink` to connect
