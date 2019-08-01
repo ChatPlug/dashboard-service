@@ -1,0 +1,6 @@
+query loadInstances {
+  instances {
+    name
+    id
+  }
+}

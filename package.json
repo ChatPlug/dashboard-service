@@ -7,9 +7,11 @@
     "bundle": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --mode development --open --hot",
+    "graphql-codegen": "graphql-codegen",
     "build": "webpack --mode production",
     "apollo": "apollo",
-    "check-types": "tsc"
+    "check-types": "tsc",
+    "gql-codegen": "graphql-codegen --config codegen.yml"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +21,11 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
+    "@graphql-codegen/cli": "^1.4.0",
+    "@graphql-codegen/introspection": "1.4.0",
+    "@graphql-codegen/typescript": "1.4.0",
+    "@graphql-codegen/typescript-operations": "1.4.0",
+    "@graphql-codegen/typescript-react-apollo": "1.4.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-import": "^1.12.0",
     "css-loader": "^3.1.0",
@@ -48,6 +55,7 @@
     "graphql-tag": "^2.10.1",
     "react": "^16.8.6",
     "react-apollo": "^2.5.8",
+    "react-apollo-hooks": "^0.5.0",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.1"
   }

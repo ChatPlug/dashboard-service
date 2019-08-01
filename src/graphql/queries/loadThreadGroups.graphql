@@ -1,0 +1,15 @@
+query loadThreadGroups {
+  threadGroups {
+    id
+    name
+    threads {
+      id
+      originId
+      name
+      service {
+        name
+        id
+      }
+    }
+  }
+}

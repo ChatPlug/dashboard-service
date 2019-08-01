@@ -5,6 +5,7 @@ import { ApolloClient } from "apollo-client"
 import { HttpLink } from "apollo-link-http"
 import { InMemoryCache } from "apollo-cache-inmemory"
 import { ApolloProvider } from 'react-apollo'
+import { ApolloProvider as H } from 'react-apollo-hooks'
 
 export const client = new ApolloClient({
     // By default, this client will send queries to the
@@ -15,4 +16,4 @@ export const client = new ApolloClient({
     cache: new InMemoryCache(),
 });
 
-ReactDOM.render(<ApolloProvider client={client}><App /></ApolloProvider>, document.getElementById("root"));
+ReactDOM.render(<ApolloProvider client={client}><H client={client}><App /></H></ApolloProvider>, document.getElementById("root"));

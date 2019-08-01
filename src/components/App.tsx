@@ -1,17 +1,14 @@
 import React from "react";
-import { DatePicker } from "antd";
 
 import "../styles/index.css";
 
-import ChatPlugLogo from "../../assets/chatplug-icon.svg";
-import SVG from "react-inlinesvg";
 
-import { Layout, Menu, Breadcrumb, Icon } from "antd";
+import { Layout, Menu } from "antd";
 import Services from "./Services";
 import ThreadGroups from "./ThreadGroups";
 import Settings from "./Settings";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-const { Header, Content, Footer, Sider } = Layout;
+const { Header } = Layout;
 const { SubMenu } = Menu;
 
 class App extends React.Component {

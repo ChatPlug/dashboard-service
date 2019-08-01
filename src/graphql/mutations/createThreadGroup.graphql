@@ -1,0 +1,10 @@
+mutation createThreadGroup($name: String!) {
+  createThreadGroup(name: $name) {
+    id
+    name
+    threads {
+      id
+      name
+    }
+  }
+}

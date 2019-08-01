@@ -1,43 +1,53 @@
-import { Button, Modal, Form, Input, Radio } from 'antd';
-import * as React from "react"
-import { Mutation } from "react-apollo"
-import { CreateThreadGroup, CreateThreadGroupVariables } from '../../queries/types/createThreadGroup'
-import createThreadGroupMutation from '../../queries/createThreadGroup'
+import React, { FunctionComponent } from "react";
+import { Modal, Form, Input } from "antd";
+import { FormComponentProps, WrappedFormUtils } from "antd/lib/form/Form";
+import {
+  useCreateThreadGroupMutation,
+  CreateThreadGroupMutation,
+  CreateThreadGroupMutationVariables
+} from "../../generated/graphql";
+import { MutationFn } from "react-apollo-hooks";
 
-class CreateThreadGroupMutation extends Mutation<CreateThreadGroup, CreateThreadGroupVariables> {}
+export type CreateThreadGroupMutationFunc = MutationFn<
+  CreateThreadGroupMutation,
+  CreateThreadGroupMutationVariables
+>;
 
-export default Form.create({ name: 'form_in_modal' })(
-  // eslint-disable-next-line
-  class extends React.Component {
-    render() {
-      const { visible, onCancel, onCreate, form } = this.props;
-      const { getFieldDecorator } = form;
-      return (
-          <CreateThreadGroupMutation mutation={createThreadGroupMutation}
-            refetchQueries={["LoadThreadGroups"]}
-          >
-              {(createThreadGroup) => {
+interface IProps {
+  onCancel: () => void;
+  visible: boolean;
+  onCreate: (mutation: CreateThreadGroupMutationFunc, form: WrappedFormUtils<any>) => void;
+}
 
-                  return (<Modal
-                    visible={visible}
-                    title="Create a new thread group"
-                    okText="Create"
-                    onCancel={onCancel}
-                    onOk={e => onCreate(createThreadGroup)}
-                  >
-                    <Form layout="vertical">
-                      <Form.Item label="Name">
-                        {getFieldDecorator('name', {
-                          rules: [{ required: true, message: 'Please input the name of the thread group' }],
-                        })(<Input />)}
-                      </Form.Item>
-                    </Form>
-                  </Modal>)
-              }}
+const CreateThreadGroupForm: FunctionComponent<
+  IProps & FormComponentProps
+> = props => {
+  const [createThreadGroup] = useCreateThreadGroupMutation({
+    refetchQueries: ["loadThreadGroups"]
+  });
 
-          </CreateThreadGroupMutation>
-        
-      );
-    }
-  },
-);
+  return (
+    <Modal
+      visible={props.visible}
+      title="Create a new thread group"
+      okText="Create"
+      onCancel={props.onCancel}
+      onOk={_ => props.onCreate(createThreadGroup, props.form)}
+    >
+      <Form layout="vertical">
+        <Form.Item label="Name">
+          {props.form.getFieldDecorator("name", {
+            rules: [
+              {
+                required: true,
+                message: "Please input the name of the thread group"
+              }
+            ]
+          })(<Input />)}
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+export default Form.create<IProps & FormComponentProps>()(CreateThreadGroupForm)

@@ -1,117 +1,78 @@
-import React from "react";
+import React, { FunctionComponent, useState, useRef } from "react";
 
-import { Layout, Menu, Button, Breadcrumb, Card } from "antd";
-import { Query, Mutation } from "react-apollo";
-import {
-  LoadThreadGroups,
-  LoadThreadGroups_threadGroups,
-  LoadThreadGroups_threadGroups_threads
-} from "../../queries/types/LoadThreadGroups";
-import loadThreadGroupsQuery from "../../queries/threadGroupsQuery";
-import deleteThreadMutation from "../../queries/deleteThread";
-import { Empty } from "antd";
-import { Popconfirm, message } from "antd";
+import { Layout, Menu, Button} from "antd";
 import ThreadGroup from "../ThreadGroup";
-import CreateThreadGroupForm from "../CreateThreadGroupForm"
-import {
-  DeleteThread,
-  DeleteThreadVariables
-} from "queries/types/DeleteThread";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import CreateThreadGroupForm, { CreateThreadGroupMutationFunc } from '../CreateThreadGroupForm'
 
-const { Content, Sider } = Layout;
-const { SubMenu } = Menu;
+import { Route, Link } from "react-router-dom";
+import { useLoadThreadGroupsQuery } from "../../generated/graphql"
+import { WrappedFormUtils } from 'antd/lib/form/Form'
 
-export class GetThreadGroupsQuery extends Query<LoadThreadGroups> {}
+const { Sider } = Layout;
 
-class ThreadGroups extends React.Component {
-  state = {
-    selectedGroupId: undefined,
-    createGroupVisible: false,
-  };
 
-  showModal = () => {
-    this.setState({ createGroupVisible: true });
-  };
+const ThreadGroups: FunctionComponent<{}> = ({}) => {
+  const [showAddGroupDialog, setShowAddGroupDialog] = useState(false)
 
-  handleCancel = () => {
-    this.setState({ createGroupVisible: false });
-  };
-
-  handleCreate = (createThreadGroup) => {
-    const { form } = this.formRef.props;
+  const createThreadGroup = (createNewThreadGroup: CreateThreadGroupMutationFunc, form: WrappedFormUtils<any>) => {
     form.validateFields((err, values) => {
       if (err) {
         return;
       }
 
-      console.log('Received values of form: ', values);
-      createThreadGroup({variables: {name: values["name"]}})
+      createNewThreadGroup({ variables: { name: values["name"] } });
       form.resetFields();
-      this.setState({ createGroupVisible: false });
+      setShowAddGroupDialog(false)
     });
-  };
-
-  saveFormRef = formRef => {
-    this.formRef = formRef;
-  };
-
-  render() {
-    return (
-      <GetThreadGroupsQuery
-        query={loadThreadGroupsQuery}
-        fetchPolicy="cache-and-network"
-      >
-        {({ loading, error, data }) => {
-          if (loading) return "Loading...";
-          if (error) return `Error! ${error.message}`;
-
-          console.log(data);
-
-          return (
-            <Layout>
-              <Sider width={200} style={{ background: "#fff" }}>
-                <div
-                  style={{
-                    textAlign: "center",
-                    paddingBottom: "16px",
-                    paddingTop: "16px"
-                  }}
-                >
-                  <Button
-                    type="primary"
-                    style={{ width: 168, display: "inline-block" }}
-                    shape="round"
-                    onClick={this.showModal}
-                  >
-                    New group
-                  </Button>
-                </div>
-
-                <Menu mode="inline" style={{ height: "100%" }}>
-                  {data!!.threadGroups.map(e => (
-                    <Menu.Item
-                      key={e.id}
-                    >
-                      {e.name}
-                      <Link to={"/groups/" + e.id} />
-                    </Menu.Item>
-                  ))}
-                </Menu>
-              </Sider>
-              <Route path="/groups/:id" component={ThreadGroup} />
-              <CreateThreadGroupForm
-          wrappedComponentRef={this.saveFormRef}
-          visible={this.state.createGroupVisible}
-          onCancel={this.handleCancel}
-          onCreate={this.handleCreate}
-        />
-            </Layout>
-          );
-        }}
-      </GetThreadGroupsQuery>
-    );
   }
-}
+
+  const { data, loading, error } = useLoadThreadGroupsQuery({
+    fetchPolicy: "cache-and-network"
+  });
+
+  if (loading || error) {
+    return <div>Loading</div>;
+  }
+
+  const threadGroups = data!!.threadGroups;
+
+  return (
+    <Layout>
+      <Sider width={200} style={{ background: "#fff" }}>
+        <div
+          style={{
+            textAlign: "center",
+            paddingBottom: "16px",
+            paddingTop: "16px"
+          }}
+        >
+          <Button
+            type="primary"
+            style={{ width: 168, display: "inline-block" }}
+            onClick={_ => setShowAddGroupDialog(true)}
+            shape="round"
+          >
+            New group
+          </Button>
+        </div>
+
+        <Menu mode="inline" style={{ height: "100%" }}>
+          {threadGroups.map(e => (
+            <Menu.Item key={e.id}>
+              {e.name}
+              <Link to={"/groups/" + e.id} />
+            </Menu.Item>
+          ))}
+        </Menu>
+      </Sider>
+      <Route path="/groups/:id" component={ThreadGroup} />
+      <CreateThreadGroupForm
+                visible={showAddGroupDialog}
+                onCancel={() => setShowAddGroupDialog(false)}
+                onCreate={createThreadGroup}
+              />
+    </Layout>
+  );
+};
 
 export default ThreadGroups;
