@@ -11,14 +11,6 @@ import loadInstancesQuery from "../../queries/instancesQuery";
 class GetInstancesQuery extends Query<LoadInstances> {}
 
 class Services extends React.Component {
-  state = {
-    collapsed: false
-  };
-
-  onCollapse = (collapsed: boolean) => {
-    console.log(collapsed);
-    this.setState({ collapsed });
-  };
 
   render() {
     return (

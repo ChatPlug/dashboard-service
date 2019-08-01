@@ -26,7 +26,6 @@ class ThreadGroup extends React.Component<{
   id: String | undefined;
 }> {
   render() {
-    console.log(this.props);
     if (this.props.match.params.id === undefined) {
       return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
     } else {

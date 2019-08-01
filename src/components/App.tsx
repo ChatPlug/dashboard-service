@@ -3,6 +3,9 @@ import { DatePicker } from "antd";
 
 import "../styles/index.css";
 
+import ChatPlugLogo from "../../assets/chatplug-icon.svg";
+import SVG from "react-inlinesvg";
+
 import { Layout, Menu, Breadcrumb, Icon } from "antd";
 import Services from "./Services";
 import ThreadGroups from "./ThreadGroups";
@@ -35,25 +38,27 @@ class App extends React.Component {
               flex: "row"
             }}
           >
-            <div className="logo">ChatPlug Dashboard v1</div>
+            <div className="logo" style={{ fontSize: 22, fontWeight: "bold" }}>
+              Chat Plug
+            </div>
             <Menu
               theme="light"
               mode="horizontal"
               defaultSelectedKeys={[this.state.selectedIndex.toString()]}
               style={{ lineHeight: "64px", marginLeft: "auto" }}
             >
-              <Menu.Item key="2">
-                Settings
-                <Link to="/settings" />
+              
+              <Menu.Item key="0">
+                Services
+                <Link to="/services" />
               </Menu.Item>
-
               <Menu.Item key="1">
                 Thread groups
                 <Link to="/groups" />
               </Menu.Item>
-              <Menu.Item key="0">
-                Services
-                <Link to="/services" />
+              <Menu.Item key="2">
+                Settings
+                <Link to="/settings" />
               </Menu.Item>
             </Menu>
           </Header>
