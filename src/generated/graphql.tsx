@@ -236,6 +236,15 @@ export type DeleteThreadMutation = { __typename?: "Mutation" } & Pick<
   "deleteThread"
 >;
 
+export type DeleteThreadGroupMutationVariables = {
+  id: Scalars["ID"];
+};
+
+export type DeleteThreadGroupMutation = { __typename?: "Mutation" } & Pick<
+  Mutation,
+  "deleteThreadGroup"
+>;
+
 export type LoadInstancesQueryVariables = {};
 
 export type LoadInstancesQuery = { __typename?: "Query" } & {
@@ -400,6 +409,75 @@ export function useDeleteThreadMutation(
 }
 export type DeleteThreadMutationHookResult = ReturnType<
   typeof useDeleteThreadMutation
+>;
+export const DeleteThreadGroupDocument = gql`
+  mutation deleteThreadGroup($id: ID!) {
+    deleteThreadGroup(id: $id)
+  }
+`;
+export type DeleteThreadGroupMutationFn = ReactApollo.MutationFn<
+  DeleteThreadGroupMutation,
+  DeleteThreadGroupMutationVariables
+>;
+export type DeleteThreadGroupComponentProps = Omit<
+  ReactApollo.MutationProps<
+    DeleteThreadGroupMutation,
+    DeleteThreadGroupMutationVariables
+  >,
+  "mutation"
+>;
+
+export const DeleteThreadGroupComponent = (
+  props: DeleteThreadGroupComponentProps
+) => (
+  <ReactApollo.Mutation<
+    DeleteThreadGroupMutation,
+    DeleteThreadGroupMutationVariables
+  >
+    mutation={DeleteThreadGroupDocument}
+    {...props}
+  />
+);
+
+export type DeleteThreadGroupProps<TChildProps = {}> = Partial<
+  ReactApollo.MutateProps<
+    DeleteThreadGroupMutation,
+    DeleteThreadGroupMutationVariables
+  >
+> &
+  TChildProps;
+export function withDeleteThreadGroup<TProps, TChildProps = {}>(
+  operationOptions?: ReactApollo.OperationOption<
+    TProps,
+    DeleteThreadGroupMutation,
+    DeleteThreadGroupMutationVariables,
+    DeleteThreadGroupProps<TChildProps>
+  >
+) {
+  return ReactApollo.withMutation<
+    TProps,
+    DeleteThreadGroupMutation,
+    DeleteThreadGroupMutationVariables,
+    DeleteThreadGroupProps<TChildProps>
+  >(DeleteThreadGroupDocument, {
+    alias: "withDeleteThreadGroup",
+    ...operationOptions
+  });
+}
+
+export function useDeleteThreadGroupMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    DeleteThreadGroupMutation,
+    DeleteThreadGroupMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    DeleteThreadGroupMutation,
+    DeleteThreadGroupMutationVariables
+  >(DeleteThreadGroupDocument, baseOptions);
+}
+export type DeleteThreadGroupMutationHookResult = ReturnType<
+  typeof useDeleteThreadGroupMutation
 >;
 export const LoadInstancesDocument = gql`
   query loadInstances {
