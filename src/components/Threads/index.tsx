@@ -35,7 +35,7 @@ const Threads: FunctionComponent<{ threads: any[] }> = props => {
           >
             <p>Origin ID: {e.originId}</p>
             <p>
-              This thread comes from <b>{e.service.name}</b>
+              This thread comes from {e.service.service.name} (<b>{e.service.name}</b>)
             </p>
           </Card>
         ))}

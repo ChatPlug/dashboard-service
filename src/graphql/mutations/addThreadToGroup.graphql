@@ -1,5 +1,7 @@
-query loadThreadGroups {
-  threadGroups {
+mutation addThreadToGroup($originId: String!, $iconUrl: String!, $instanceId: String!, $groupId: ID!, $name: String!) {
+  addThreadToGroup(input: {
+      originId:$originId, 
+      iconUrl:$iconUrl, instanceId:$instanceId, groupId:$groupId, name:$name}) {
     id
     name
     threads {

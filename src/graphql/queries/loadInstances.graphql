@@ -2,5 +2,13 @@ query loadInstances {
   instances {
     name
     id
+    service {
+      name
+      displayName
+      version
+      type
+      entryPoint
+      description    
+    }
   }
 }

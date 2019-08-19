@@ -35,6 +35,7 @@ export enum AttachmentType {
 }
 
 export type ConfigurationField = {
+  name: Scalars["String"];
   type: ConfigurationFieldType;
   defaultValue: Scalars["String"];
   optional: Scalars["Boolean"];
@@ -54,7 +55,13 @@ export type ConfigurationRequest = {
 
 export type ConfigurationResponse = {
   __typename?: "ConfigurationResponse";
-  fieldValues: Array<Scalars["String"]>;
+  fieldValues: Array<ConfigurationResult>;
+};
+
+export type ConfigurationResult = {
+  __typename?: "ConfigurationResult";
+  name: Scalars["String"];
+  value: Scalars["String"];
 };
 
 export enum InstanceStatus {
@@ -114,11 +121,12 @@ export type Mutation = {
   deleteThread: Scalars["ID"];
   addThreadToGroup: ThreadGroup;
   setInstanceStatus: ServiceInstance;
-  createNewInstance: ServiceInstance;
+  createNewInstance: NewServiceInstanceCreated;
+  setSearchResponse?: Maybe<SearchResponse>;
+  searchThreadsInService?: Maybe<SearchResponse>;
 };
 
 export type MutationSendMessageArgs = {
-  instanceId: Scalars["ID"];
   input: MessageInput;
 };
 
@@ -143,13 +151,28 @@ export type MutationAddThreadToGroupArgs = {
 };
 
 export type MutationSetInstanceStatusArgs = {
-  instanceId: Scalars["ID"];
   status?: Maybe<InstanceStatus>;
 };
 
 export type MutationCreateNewInstanceArgs = {
   serviceModuleName: Scalars["String"];
   instanceName: Scalars["String"];
+};
+
+export type MutationSetSearchResponseArgs = {
+  forQuery: Scalars["String"];
+  threads: Array<ThreadSearchResultInput>;
+};
+
+export type MutationSearchThreadsInServiceArgs = {
+  q: Scalars["String"];
+  instanceID: Scalars["String"];
+};
+
+export type NewServiceInstanceCreated = {
+  __typename?: "NewServiceInstanceCreated";
+  instance: ServiceInstance;
+  accessToken: Scalars["String"];
 };
 
 export type Query = {
@@ -160,11 +183,25 @@ export type Query = {
   threadGroups: Array<ThreadGroup>;
 };
 
+export type SearchRequest = {
+  __typename?: "SearchRequest";
+  query: Scalars["String"];
+};
+
+export type SearchResponse = {
+  __typename?: "SearchResponse";
+  forQuery: Scalars["String"];
+  threads: Array<ThreadSearchResult>;
+};
+
 export type Service = {
   __typename?: "Service";
+  name: Scalars["String"];
   displayName: Scalars["String"];
   description: Scalars["String"];
-  name: Scalars["String"];
+  version: Scalars["String"];
+  type: Scalars["String"];
+  entryPoint: Scalars["String"];
 };
 
 export type ServiceInstance = {
@@ -172,16 +209,14 @@ export type ServiceInstance = {
   id: Scalars["ID"];
   name: Scalars["String"];
   status: InstanceStatus;
+  service: Service;
 };
 
 export type Subscription = {
   __typename?: "Subscription";
   messageReceived: MessagePayload;
   configurationReceived: ConfigurationResponse;
-};
-
-export type SubscriptionMessageReceivedArgs = {
-  instanceId: Scalars["ID"];
+  subscribeToSearchRequests: SearchRequest;
 };
 
 export type SubscriptionConfigurationReceivedArgs = {
@@ -196,6 +231,7 @@ export type Thread = {
   threadGroupId: Scalars["ID"];
   service: ServiceInstance;
   readonly?: Maybe<Scalars["Boolean"]>;
+  iconUrl: Scalars["String"];
   id: Scalars["ID"];
 };
 
@@ -212,8 +248,56 @@ export type ThreadInput = {
   originId: Scalars["String"];
   groupId: Scalars["ID"];
   readonly?: Maybe<Scalars["Boolean"]>;
+  iconUrl?: Maybe<Scalars["String"]>;
   name: Scalars["String"];
 };
+
+export type ThreadSearchResult = {
+  __typename?: "ThreadSearchResult";
+  name: Scalars["String"];
+  iconUrl?: Maybe<Scalars["String"]>;
+  originId: Scalars["String"];
+};
+
+export type ThreadSearchResultInput = {
+  name: Scalars["String"];
+  originId: Scalars["String"];
+  iconUrl?: Maybe<Scalars["String"]>;
+};
+export type AddThreadToGroupMutationVariables = {
+  originId: Scalars["String"];
+  iconUrl: Scalars["String"];
+  instanceId: Scalars["String"];
+  groupId: Scalars["ID"];
+  name: Scalars["String"];
+};
+
+export type AddThreadToGroupMutation = { __typename?: "Mutation" } & {
+  addThreadToGroup: { __typename?: "ThreadGroup" } & Pick<
+    ThreadGroup,
+    "id" | "name"
+  > & {
+      threads: Array<
+        { __typename?: "Thread" } & Pick<Thread, "id" | "originId" | "name"> & {
+            service: { __typename?: "ServiceInstance" } & Pick<
+              ServiceInstance,
+              "name" | "id"
+            > & {
+                service: { __typename?: "Service" } & Pick<
+                  Service,
+                  | "name"
+                  | "displayName"
+                  | "version"
+                  | "type"
+                  | "entryPoint"
+                  | "description"
+                >;
+              };
+          }
+      >;
+    };
+};
+
 export type CreateThreadGroupMutationVariables = {
   name: Scalars["String"];
 };
@@ -245,11 +329,42 @@ export type DeleteThreadGroupMutation = { __typename?: "Mutation" } & Pick<
   "deleteThreadGroup"
 >;
 
+export type SearchThreadsInServiceMutationVariables = {
+  q: Scalars["String"];
+  instanceID: Scalars["String"];
+};
+
+export type SearchThreadsInServiceMutation = { __typename?: "Mutation" } & {
+  searchThreadsInService: Maybe<
+    { __typename?: "SearchResponse" } & Pick<SearchResponse, "forQuery"> & {
+        threads: Array<
+          { __typename?: "ThreadSearchResult" } & Pick<
+            ThreadSearchResult,
+            "name" | "iconUrl" | "originId"
+          >
+        >;
+      }
+  >;
+};
+
 export type LoadInstancesQueryVariables = {};
 
 export type LoadInstancesQuery = { __typename?: "Query" } & {
   instances: Array<
-    { __typename?: "ServiceInstance" } & Pick<ServiceInstance, "name" | "id">
+    { __typename?: "ServiceInstance" } & Pick<
+      ServiceInstance,
+      "name" | "id"
+    > & {
+        service: { __typename?: "Service" } & Pick<
+          Service,
+          | "name"
+          | "displayName"
+          | "version"
+          | "type"
+          | "entryPoint"
+          | "description"
+        >;
+      }
   >;
 };
 
@@ -266,13 +381,126 @@ export type LoadThreadGroupsQuery = { __typename?: "Query" } & {
               service: { __typename?: "ServiceInstance" } & Pick<
                 ServiceInstance,
                 "name" | "id"
-              >;
+              > & {
+                  service: { __typename?: "Service" } & Pick<
+                    Service,
+                    | "name"
+                    | "displayName"
+                    | "version"
+                    | "type"
+                    | "entryPoint"
+                    | "description"
+                  >;
+                };
             }
         >;
       }
   >;
 };
 
+export const AddThreadToGroupDocument = gql`
+  mutation addThreadToGroup(
+    $originId: String!
+    $iconUrl: String!
+    $instanceId: String!
+    $groupId: ID!
+    $name: String!
+  ) {
+    addThreadToGroup(
+      input: {
+        originId: $originId
+        iconUrl: $iconUrl
+        instanceId: $instanceId
+        groupId: $groupId
+        name: $name
+      }
+    ) {
+      id
+      name
+      threads {
+        id
+        originId
+        name
+        service {
+          name
+          id
+          service {
+            name
+            displayName
+            version
+            type
+            entryPoint
+            description
+          }
+        }
+      }
+    }
+  }
+`;
+export type AddThreadToGroupMutationFn = ReactApollo.MutationFn<
+  AddThreadToGroupMutation,
+  AddThreadToGroupMutationVariables
+>;
+export type AddThreadToGroupComponentProps = Omit<
+  ReactApollo.MutationProps<
+    AddThreadToGroupMutation,
+    AddThreadToGroupMutationVariables
+  >,
+  "mutation"
+>;
+
+export const AddThreadToGroupComponent = (
+  props: AddThreadToGroupComponentProps
+) => (
+  <ReactApollo.Mutation<
+    AddThreadToGroupMutation,
+    AddThreadToGroupMutationVariables
+  >
+    mutation={AddThreadToGroupDocument}
+    {...props}
+  />
+);
+
+export type AddThreadToGroupProps<TChildProps = {}> = Partial<
+  ReactApollo.MutateProps<
+    AddThreadToGroupMutation,
+    AddThreadToGroupMutationVariables
+  >
+> &
+  TChildProps;
+export function withAddThreadToGroup<TProps, TChildProps = {}>(
+  operationOptions?: ReactApollo.OperationOption<
+    TProps,
+    AddThreadToGroupMutation,
+    AddThreadToGroupMutationVariables,
+    AddThreadToGroupProps<TChildProps>
+  >
+) {
+  return ReactApollo.withMutation<
+    TProps,
+    AddThreadToGroupMutation,
+    AddThreadToGroupMutationVariables,
+    AddThreadToGroupProps<TChildProps>
+  >(AddThreadToGroupDocument, {
+    alias: "withAddThreadToGroup",
+    ...operationOptions
+  });
+}
+
+export function useAddThreadToGroupMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    AddThreadToGroupMutation,
+    AddThreadToGroupMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    AddThreadToGroupMutation,
+    AddThreadToGroupMutationVariables
+  >(AddThreadToGroupDocument, baseOptions);
+}
+export type AddThreadToGroupMutationHookResult = ReturnType<
+  typeof useAddThreadToGroupMutation
+>;
 export const CreateThreadGroupDocument = gql`
   mutation createThreadGroup($name: String!) {
     createThreadGroup(name: $name) {
@@ -479,11 +707,95 @@ export function useDeleteThreadGroupMutation(
 export type DeleteThreadGroupMutationHookResult = ReturnType<
   typeof useDeleteThreadGroupMutation
 >;
+export const SearchThreadsInServiceDocument = gql`
+  mutation searchThreadsInService($q: String!, $instanceID: String!) {
+    searchThreadsInService(q: $q, instanceID: $instanceID) {
+      forQuery
+      threads {
+        name
+        iconUrl
+        originId
+      }
+    }
+  }
+`;
+export type SearchThreadsInServiceMutationFn = ReactApollo.MutationFn<
+  SearchThreadsInServiceMutation,
+  SearchThreadsInServiceMutationVariables
+>;
+export type SearchThreadsInServiceComponentProps = Omit<
+  ReactApollo.MutationProps<
+    SearchThreadsInServiceMutation,
+    SearchThreadsInServiceMutationVariables
+  >,
+  "mutation"
+>;
+
+export const SearchThreadsInServiceComponent = (
+  props: SearchThreadsInServiceComponentProps
+) => (
+  <ReactApollo.Mutation<
+    SearchThreadsInServiceMutation,
+    SearchThreadsInServiceMutationVariables
+  >
+    mutation={SearchThreadsInServiceDocument}
+    {...props}
+  />
+);
+
+export type SearchThreadsInServiceProps<TChildProps = {}> = Partial<
+  ReactApollo.MutateProps<
+    SearchThreadsInServiceMutation,
+    SearchThreadsInServiceMutationVariables
+  >
+> &
+  TChildProps;
+export function withSearchThreadsInService<TProps, TChildProps = {}>(
+  operationOptions?: ReactApollo.OperationOption<
+    TProps,
+    SearchThreadsInServiceMutation,
+    SearchThreadsInServiceMutationVariables,
+    SearchThreadsInServiceProps<TChildProps>
+  >
+) {
+  return ReactApollo.withMutation<
+    TProps,
+    SearchThreadsInServiceMutation,
+    SearchThreadsInServiceMutationVariables,
+    SearchThreadsInServiceProps<TChildProps>
+  >(SearchThreadsInServiceDocument, {
+    alias: "withSearchThreadsInService",
+    ...operationOptions
+  });
+}
+
+export function useSearchThreadsInServiceMutation(
+  baseOptions?: ReactApolloHooks.MutationHookOptions<
+    SearchThreadsInServiceMutation,
+    SearchThreadsInServiceMutationVariables
+  >
+) {
+  return ReactApolloHooks.useMutation<
+    SearchThreadsInServiceMutation,
+    SearchThreadsInServiceMutationVariables
+  >(SearchThreadsInServiceDocument, baseOptions);
+}
+export type SearchThreadsInServiceMutationHookResult = ReturnType<
+  typeof useSearchThreadsInServiceMutation
+>;
 export const LoadInstancesDocument = gql`
   query loadInstances {
     instances {
       name
       id
+      service {
+        name
+        displayName
+        version
+        type
+        entryPoint
+        description
+      }
     }
   }
 `;
@@ -545,6 +857,14 @@ export const LoadThreadGroupsDocument = gql`
         service {
           name
           id
+          service {
+            name
+            displayName
+            version
+            type
+            entryPoint
+            description
+          }
         }
       }
     }

@@ -1,0 +1,10 @@
+mutation searchThreadsInService($q: String!, $instanceID: String!){
+  searchThreadsInService(q: $q, instanceID: $instanceID) {
+    forQuery
+    threads {
+      name
+      iconUrl
+      originId
+    }
+  }
+}

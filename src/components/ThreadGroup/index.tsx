@@ -7,17 +7,23 @@ import {
   Breadcrumb,
   Button,
   Popconfirm,
-  message
+  message,
+  AutoComplete,
+  Select
 } from "antd";
+const {  Option } = Select;
 const { Content } = Layout;
 import Threads from "../Threads";
 import { Route } from 'react-router-dom';
 
 import {
   useLoadThreadGroupsQuery,
-  useDeleteThreadGroupMutation
+  useDeleteThreadGroupMutation,
+  useSearchThreadsInServiceMutation
 } from "../../generated/graphql";
 import {withRouter} from 'react-router-dom'
+import { useState } from 'react';
+import AddThreadToGroupForm from '../AddThreadToGroupForm';
 
 const ThreadGroup: FunctionComponent<{
   match: { params: { id: string }, history: History };
@@ -25,6 +31,8 @@ const ThreadGroup: FunctionComponent<{
   const { data, loading, error } = useLoadThreadGroupsQuery({
     fetchPolicy: "cache-and-network"
   });
+
+  const [addThreadModalVisible, setAddThreadModalVisible] = useState(false)
 
   const [deleteThreadGroup] = useDeleteThreadGroupMutation({
     refetchQueries: ["loadThreadGroups"]
@@ -71,12 +79,17 @@ const ThreadGroup: FunctionComponent<{
         <Content style={{ minHeight: 280 }}>
           <Card
             title={group!!.name}
-            extra={<a href="#">Add a thread</a>}
+            extra={<a onClick={() => setAddThreadModalVisible(true)}>Add a thread</a>}
             style={{ width: "100%" }}
           >
             This thread group connects {group!!.threads.length} threads
             <Threads threads={group!!.threads} />
           </Card>
+          <AddThreadToGroupForm
+                visible={addThreadModalVisible}
+                groupId={group!!.id}
+                dismiss={() => setAddThreadModalVisible(false)}
+              />
         </Content>
       </Layout>
     );
